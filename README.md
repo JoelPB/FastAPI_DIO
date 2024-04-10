@@ -9,6 +9,45 @@ Para rodar a Api
 ````commandline
 uvicorn workout_api.main:app --reload
 ````
+___
+## Instalando o Invoke Para automação de tarefas
+Para usar o invoke, você precisa instalá-lo no ambiente do seu projeto Python. 
+Você pode fazer isso usando o pip, o gerenciador de pacotes Python.
+
+Abra o terminal do PyCharm e execute o seguinte comando:
+
+````
+pip install invoke
+````
+
+Usando o Invoke
+Após a instalação do invoke, você pode criar um arquivo tasks.py no diretório raiz
+do seu projeto para definir suas tarefas. Para configurar o invoke para um 
+projeto FastAPI com Uvicorn, você pode criar tarefas no arquivo tasks.py para 
+iniciar o servidor Uvicorn e realizar outras tarefas relacionadas ao 
+desenvolvimento do seu projeto. Coforme o exemplo de como você pode configurar o 
+tasks.py para um projeto FastAPI com Uvicorn:
+
+````python
+from invoke import task
+
+@task
+def start(c):
+    """
+    Start the Uvicorn server.
+    """
+    c.run("uvicorn main:app --reload")
+
+````
+Depois de criar o arquivo tasks.py e definir a tarefa, você pode executá-la a 
+partir do terminal do PyCharm ou de qualquer outro terminal usando o comando 
+invoke seguido pelo nome da tarefa desejada. Por exemplo, para iniciar o 
+servidor Uvicorn, você executaria:
+
+````bash
+invoke start
+````
+obs.: o caminho onde irá executar o comando será o mesmo do arquivo tasks.py
 
 ___
 ## Docker
