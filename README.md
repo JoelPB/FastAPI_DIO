@@ -30,16 +30,35 @@ tasks.py para um projeto FastAPI com Uvicorn:
 
 ````python
 from invoke import task
+import os
 
 @task
 def start(c):
     """
     Start the Uvicorn server.
     """
-    c.run("uvicorn main:app --reload")
+    c.run("uvicorn workout_api.main:app --reload")
+    
+
+    @task
+def create_migrations(c, d):
+    """
+    Create database migrations.
+    """
+    pythonpath = os.getcwd()
+    c.run(f"set PYTHONPATH={pythonpath} && alembic revision --autogenerate -m '{d}'")
+
+
+@task
+def run_migrations(c):
+    """
+    Run database migrations.
+    """
+    pythonpath = os.getcwd()
+    c.run(f"set PYTHONPATH={pythonpath} && alembic upgrade head")
 
 ````
-Depois de criar o arquivo tasks.py e definir a tarefa, você pode executá-la a 
+Depois de criar o arquivo tasks.py e definir as tarefas, você pode executá-la a 
 partir do terminal do PyCharm ou de qualquer outro terminal usando o comando 
 invoke seguido pelo nome da tarefa desejada. Por exemplo, para iniciar o 
 servidor Uvicorn, você executaria:
@@ -47,6 +66,15 @@ servidor Uvicorn, você executaria:
 ````bash
 invoke start
 ````
+Para criar as migrações
+````bash
+invoke create-migrations -d "init_db"
+````
+Para rodar as migrações
+````bash
+invoke run-migrations
+````
+
 obs.: o caminho onde irá executar o comando será o mesmo do arquivo tasks.py
 
 ___
@@ -117,3 +145,6 @@ configurações através do ícone da bandeja do sistema.
 Seguindo estes passos, você deverá ter o Docker operacional no seu sistema 
 Windows.
 
+---
+## [TablePlus](https://tableplus.com)
+Para visualizar o banco
