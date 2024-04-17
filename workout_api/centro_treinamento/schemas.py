@@ -15,7 +15,8 @@ class CentroTreinamentoIn(BaseSchema):
 
 
 class CentroTreinamentoAtleta(BaseSchema):
-    pass
+    nome: Annotated[str, Field(description="Nome  do centro de treinamento",
+                               example="CT King", max_length=20)]
 
 
 class CentroTreinamentoOut(CentroTreinamentoIn):
