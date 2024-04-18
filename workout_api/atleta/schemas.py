@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from pydantic import Field, PositiveFloat
 
@@ -30,3 +30,10 @@ class AtletaIn(Atleta):
 
 class AtletaOut(Atleta, OutMixin):
     pass
+
+
+class AtletaUpdate(BaseSchema):
+    nome: Annotated[Optional[str], Field(None, description="Nome do atleta",
+                                         example="João", max_length=50)]
+    idade: Annotated[Optional[int], Field(None, description="Idade do atleta",
+                                          example=40)]
