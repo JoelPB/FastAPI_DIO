@@ -4,12 +4,11 @@ from uuid import uuid4
 from fastapi import APIRouter, status, Body, HTTPException, Query
 from pydantic import UUID4
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload
 
 from workout_api.centro_treinamento.models import CentroTreinamentoModel
 from workout_api.categorias.controller import CategoriaModel
 from workout_api.atleta.models import AtletaModel
-from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate
+from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate, AtletaShort
 from workout_api.contrib.depedencies import DatabaseDependency
 
 router = APIRouter()
@@ -53,6 +52,7 @@ async def post(
 
         db_session.add(atleta_model)
         await db_session.commit()
+
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=F"Ocorreu um erro ao inserir os dados no banco: {str(e)}")
@@ -64,24 +64,33 @@ async def post(
     "/",
     summary="Consultar todos os Atletas.",
     status_code=status.HTTP_200_OK,
-    response_model=list[AtletaOut],
+    response_model=list[AtletaShort],
 )
 async def query(
         db_session: DatabaseDependency,
         nome: str = Query(None),
         cpf: str = Query(None)
-) -> list[AtletaOut]:
+) -> list[AtletaShort]:
     filters = []
     if nome:
         filters.append(AtletaModel.nome == nome)
     if cpf:
         filters.append(AtletaModel.cpf == cpf)
 
-    atletas: list[AtletaOut] = (
+    atletas: list[AtletaModel] = (
         await db_session.execute(select(AtletaModel).filter(*filters))
     ).scalars().all()
 
-    return [AtletaOut.model_validate(atleta) for atleta in atletas]
+    response_data = []
+    for atleta in atletas:
+        atleta_short = AtletaShort(
+            nome=atleta.nome,
+            categoria=atleta.categoria.nome,
+            centro_treinamento=atleta.centro_treinamento.nome
+        )
+        response_data.append(atleta_short)
+
+    return response_data
 
 
 @router.get(
