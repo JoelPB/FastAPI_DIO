@@ -1,9 +1,10 @@
 from datetime import datetime
 from uuid import uuid4
 
-from fastapi import APIRouter, status, Body, HTTPException
+from fastapi import APIRouter, status, Body, HTTPException, Query
 from pydantic import UUID4
 from sqlalchemy.future import select
+from sqlalchemy.orm import joinedload
 
 from workout_api.centro_treinamento.models import CentroTreinamentoModel
 from workout_api.categorias.controller import CategoriaModel
@@ -65,8 +66,20 @@ async def post(
     status_code=status.HTTP_200_OK,
     response_model=list[AtletaOut],
 )
-async def query(db_session: DatabaseDependency) -> list[AtletaOut]:
-    atletas: list[AtletaOut] = (await db_session.execute(select(AtletaModel))).scalars().all()
+async def query(
+        db_session: DatabaseDependency,
+        nome: str = Query(None),
+        cpf: str = Query(None)
+) -> list[AtletaOut]:
+    filters = []
+    if nome:
+        filters.append(AtletaModel.nome == nome)
+    if cpf:
+        filters.append(AtletaModel.cpf == cpf)
+
+    atletas: list[AtletaOut] = (
+        await db_session.execute(select(AtletaModel).filter(*filters))
+    ).scalars().all()
 
     return [AtletaOut.model_validate(atleta) for atleta in atletas]
 
